@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import Post
+from .models import ImageModel
 
-class PostSerializer(serializers.ModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True, required=False, allow_null=True)
-
     class Meta:
-        model = Post
-        fields = ('id', 'address', 'text', 'image')
+        model = ImageModel
+        # 'result' 필드를 fields 리스트에 추가하여 serializer가 처리하도록 합니다.
+        fields = ('id', 'address', 'text', 'image', 'result', 'report', 'information', 'time')
