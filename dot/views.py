@@ -13,6 +13,7 @@ from django.http import HttpResponseRedirect
 
 from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 class PostViewset(viewsets.ModelViewSet):
     queryset = ImageModel.objects.all()
@@ -23,6 +24,7 @@ class PostViewset(viewsets.ModelViewSet):
         file = request.FILES.get('image', None)
 
         # request.data에서 다른 필드 값들을 읽어옵니다.
+        name = request.data.get('name', '')
         address = request.data.get('address', '')
         text = request.data.get('text', '')
         report = request.data.get('report', '')
@@ -32,6 +34,7 @@ class PostViewset(viewsets.ModelViewSet):
         # ImageModel 인스턴스 생성
         image_instance = ImageModel(
             image=file if file else None,  # 이미지가 없는 경우 None을 지정
+            name=name,
             address=address,
             text=text,
             report=report,
@@ -75,15 +78,25 @@ class PostViewset(viewsets.ModelViewSet):
         return HttpResponseRedirect(request.build_absolute_uri())
 
     def board_list(self, request):
-        # 이미지 목록 가져오기
-        queryset = self.queryset.all()
-        paginator = Paginator(queryset, 5)
+        # 검색어 가져오기
+        search_query = request.GET.get('information', '')
 
-        page_number = request.GET.get('page','1')
+        # 검색어가 있을 경우, 검색어에 해당하는 데이터 필터링
+        if search_query:
+            queryset = self.queryset.filter(
+                Q(information__icontains=search_query)  # information 필드에서 검색어 포함 여부
+                #Q(name__icontains=search_query) |  # name 필드에서 검색어 포함 여부
+                #Q(address__icontains=search_query)  # address 필드에서 검색어 포함 여부
+            )
+        else:
+            queryset = self.queryset.all()
+
+        paginator = Paginator(queryset, 5)  # 페이지네이터 설정
+
+        page_number = request.GET.get('page', '1')
         page_obj = paginator.get_page(page_number)
 
-
         serializer = self.serializer_class(queryset, many=True)
-        return render(request, 'board_list.html', {'image_list': serializer.data, 'page_obj': page_obj})
-    
-    
+        return render(request, 'board_list.html', {'image_list': serializer.data, 'page_obj': page_obj, 'search_query': search_query})
+        
+        

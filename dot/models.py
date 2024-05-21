@@ -10,6 +10,7 @@ class ImageModel(models.Model):
     ]
 
     id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=10,blank=True, null=True)
     address = models.TextField(blank=True)
     text = models.TextField(blank=True)
     image = models.ImageField(upload_to='images/', null=True, blank=True)
