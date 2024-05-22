@@ -79,12 +79,12 @@ class PostViewset(viewsets.ModelViewSet):
 
     def board_list(self, request):
         # 검색어 가져오기
-        search_query = request.GET.get('information', '')
+        search_query = request.GET.get('name', '')
 
         # 검색어가 있을 경우, 검색어에 해당하는 데이터 필터링
         if search_query:
             queryset = self.queryset.filter(
-                Q(information__icontains=search_query)  # information 필드에서 검색어 포함 여부
+                Q(name__icontains=search_query)  # information 필드에서 검색어 포함 여부
                 #Q(name__icontains=search_query) |  # name 필드에서 검색어 포함 여부
                 #Q(address__icontains=search_query)  # address 필드에서 검색어 포함 여부
             )
